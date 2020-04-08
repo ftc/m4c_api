@@ -1,11 +1,14 @@
 from app import app
 from flask import jsonify
 from flask_caching import Cache
+from flask_cors import CORS
 
 from app.airtable import AirTable
 
 cache = Cache(config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
+CORS(app)
+
 
 import requests
 

@@ -8,6 +8,7 @@ RUN python -m venv venv
 RUN venv/bin/pip install Flask
 RUN venv/bin/pip install Flask-Caching
 RUN venv/bin/pip install requests
+RUN venv/bin/pip install flask-cors
 
 # Install Web Server
 RUN venv/bin/pip install gunicorn
