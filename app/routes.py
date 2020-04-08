@@ -25,7 +25,22 @@ def handle_invalid_usage(error):
 def is_made(job):
     return 'Made' in job['fields'] and job['fields']['Made']
 
+MANUAL_STATS_FIELDS = ["Notes",'Date Updated','Count','Status']
 @app.route('/stats', methods=['GET'])
+@cache.cached(timeout=cache_time)
+def manual_stats():
+    manual_statistics_table = AirTable('Manual%20Statistics')
+    jsdata = manual_statistics_table.json_data
+    out = {}
+    for row in jsdata:
+        row_data = {}
+        for field in MANUAL_STATS_FIELDS:
+            row_data[field] = row['fields'][field]
+        out[row['fields']['Name']] = row_data
+
+    return jsonify(out)
+
+@app.route('/stats_auto', methods=['GET'])
 @cache.cached(timeout=cache_time)
 def total_jobs():
 
