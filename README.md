@@ -38,55 +38,63 @@ flask run
 Endpoints:
 ==========
 
-Order Progress
+AirTable Statistics
 --------------
 
 ```
 GET /stats
 ```
 
-Get the number and status of each part in the Maker Production table.
-Additionally, get the number of users.
+Generate statistics based on the "Manual Statistics" airtable.  This api either returns a pre defined "Count" from each row or computes the statistics based on other tables using a SQL query.  SQL queries are sandboxed so writes will not affect airtable. We assume those who have access to AirTable are trusted to write code running on the server.
 
-output:
+Sample output:
 
 ```
 {
-    "job counts": {
-        "Clear Face Shield Long (Long_Wide_240) @1": {
-            "": 15,
-            "Contacted": 50
-        },
-        "Face Mask Buckle @1": {
-            "": 319
-        },
-        "Prusa Headband @RC1": {
-            "": 60,
-            "Contacted": 30,
-            "Scheduled 4 Drop Off": 20
-        },
-        "Prusa Headband @RC2": {
-            "": 218,
-            "Contacted": 59,
-            "Delivery Out": 38,
-            "Dropped Off": 45,
-            "Picked Up": 230,
-            "Scheduled 4 Drop Off": 90,
-            "Scheduled 4 Pick Up": 67
-        },
-        "Prusa Headband @RC3": {
-            "": 1503,
-            "Collected": 530,
-            "Contacted": 310,
-            "Dropped Off": 25,
-            "Picked Up": 374,
-            "Scheduled 4 Drop Off": 120
-        }
+    "Community Members": {
+        "Notes": "Number of Community Members",
+        "Query Result": 2016,
+        "Status": [
+            "Calculate From SQL"
+        ]
     },
-    "total jobs": "130",
-    "total members": "1431",
-    "total requests": "82"
+    "Days": {
+        "Notes": "Days in Operation",
+        "Query Result": 24.865409629419446,
+        "Status": [
+            "Calculate From SQL"
+        ]
+    },
+    "Headband Inventory": {
+        "Notes": "Headbands in Inventory, sum of Denver and Colorado Springs.",
+        "Query Result": 575,
+        "Status": [
+            "Calculate From SQL"
+        ]
+    },
+    "PPE Requests": {
+        "Notes": "Number of Requests for PPE",
+        "Query Result": 138,
+        "Status": [
+            "Calculate From SQL"
+        ]
+    },
+    "PPE Units Delivered": {
+        "Notes": "Number of PPE Units Delivered",
+        "Query Result": 14335,
+        "Status": [
+            "Calculate From SQL"
+        ]
+    },
+    "Partner Organizations": {
+        "Count": 105,
+        "Date Updated": "2020-04-07",
+        "Notes": "Number of Organizations Involved",
+        "Status": [
+            "Valid at time of update"
+        ]
+    }
 }
-
 ```
+
 

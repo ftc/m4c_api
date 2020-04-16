@@ -1,13 +1,18 @@
 import os
+import tempfile
 
 import requests
 import argparse
 import time
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
 
 import json
 
 app_id = os.environ.get('AIRTABLE_APP_ID')
 app_key = os.environ.get('AIRTABLE_KEY')
+
 base_url = "https://api.airtable.com/v0/%s" % app_id
 
 class AirTable:
@@ -15,8 +20,9 @@ class AirTable:
         self.json_data = self.get_records_from_airtable("/" + table)
         self.table_name = table
         if self.json_data is None:
-            raise Exception()
+            raise Exception("Fetching table %s failed" % table)
         self.id_cache = None
+        self.df = None
 
     def __len__(self):
         return len(self.json_data)
@@ -49,6 +55,49 @@ class AirTable:
             for row in self.json_data:
                 self.id_cache[row['id']] = row
         return self.id_cache[id]['fields'].get(column,default)
+
+    def to_dataframe(self):
+        if(self.df is None):
+            columns_defaults = {'id':""}
+            for line in self.json_data:
+                for f in line['fields']:
+                    if isinstance(line['fields'][f],str):
+                        columns_defaults[f] = ""
+                    elif isinstance(line['fields'][f],list):
+                        columns_defaults[f] = "[]"
+                    else:
+                        columns_defaults[f] = 0
+            columns = list(columns_defaults)
+            out = []
+            for line in self.json_data:
+                line_dat = []
+                for field in columns:
+                    column_val = columns_defaults[field]
+                    if field in line:
+                        column_val = line[field]
+                    elif field in line['fields']:
+                        column_val = line['fields'][field]
+                    if isinstance(column_val, list):
+                        column_val = json.dumps(column_val)
+                    line_dat.append(column_val)
+                out.append(line_dat)
+            cleaned_columns = [self.clean_name(n) for n in columns]
+            self.df = pd.DataFrame(np.array(out), columns=cleaned_columns)
+        return self.df
+
+    def sync_sql(self,sqlengine):
+        df = self.to_dataframe()
+        df.to_sql(self.table_name, con=sqlengine)
+
+    @staticmethod
+    def clean_name(n):
+        out = ""
+        for c in n:
+            if c in ['/','\\','(',')',';',' ']:
+                out += '_'
+            else:
+                out+= c
+        return out
 
     @staticmethod
     def tuple_from_cols(json_obj, cols):
