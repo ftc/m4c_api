@@ -1,5 +1,5 @@
 from app import app
-from flask import jsonify
+from flask import jsonify, render_template
 from flask_caching import Cache
 from flask_cors import CORS
 
@@ -54,3 +54,10 @@ def manual_stats():
         out[row['fields']['Name']] = row_data
 
     return jsonify(out)
+
+@app.route('/index')
+@app.route('/')
+def index():
+    return render_template('index.html', title='Home')
+
+
